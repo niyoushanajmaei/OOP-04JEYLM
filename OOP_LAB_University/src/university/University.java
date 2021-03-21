@@ -7,13 +7,21 @@ package university;
  *
  */
 public class University {
+	
+	private String name;
+	private Rector rector;
+	private Student[] students;
+	private Course[] courses;
+	private int enrolled = 0;
+	private int nCourses = 0;
 
 	/**
 	 * Constructor
 	 * @param name name of the university
 	 */
 	public University(String name){
-		//TODO: to be implemented
+		this.name = name;
+		rector = new Rector();
 	}
 	
 	/**
@@ -22,8 +30,7 @@ public class University {
 	 * @return name of university
 	 */
 	public String getName(){
-		//TODO: to be implemented
-		return null;
+		return name;
 	}
 	
 	/**
@@ -33,7 +40,7 @@ public class University {
 	 * @param last
 	 */
 	public void setRector(String first, String last){
-		//TODO: to be implemented
+		rector.setName(first,last);
 	}
 	
 	/**
@@ -42,8 +49,7 @@ public class University {
 	 * @return name of the rector
 	 */
 	public String getRector(){
-		//TODO: to be implemented
-		return null;
+		return rector.toString();
 	}
 	
 	/**
@@ -55,8 +61,15 @@ public class University {
 	 * @return unique ID of the newly enrolled student
 	 */
 	public int enroll(String first, String last){
-		//TODO: to be implemented
-		return -1;
+		int id = 10000 + enrolled;
+		if (enrolled == 0) {
+			students = new Student[1000];
+		}
+		students[enrolled] = new Student();
+		students[enrolled].setName(first,last);
+		students[enrolled].setid(id);
+		enrolled ++;
+		return id;
 	}
 	
 	/**
@@ -65,10 +78,9 @@ public class University {
 	 * @param id the ID of the student
 	 * 
 	 * @return information about the student
-	 */
+	 */	
 	public String student(int id){
-		//TODO: to be implemented
-		return null;
+		return findStudent(id).toString();
 	}
 	
 	/**
@@ -80,8 +92,16 @@ public class University {
 	 * @return the unique code assigned to the course
 	 */
 	public int activate(String title, String teacher){
-		//TODO: to be implemented
-		return -1;
+		int code = 10 + nCourses;
+		if (nCourses == 0) {
+			courses = new Course[50];
+		}
+		courses[nCourses] = new Course();
+		courses[nCourses].setTitle(title);
+		courses[nCourses].setTeacher(teacher);
+		courses[nCourses].setCode(code);
+		nCourses ++;
+		return code;
 	}
 	
 	/**
@@ -96,8 +116,7 @@ public class University {
 	 * @return information about the course
 	 */
 	public String course(int code){
-		//TODO: to be implemented
-		return null;
+		return findCourse(code).toString();
 	}
 	
 	/**
@@ -106,7 +125,8 @@ public class University {
 	 * @param courseCode id of the course
 	 */
 	public void register(int studentID, int courseCode){
-		//TODO: to be implemented
+		findStudent(studentID).addCourse(findCourse(courseCode));
+		findCourse(courseCode).addAttendee(findStudent(studentID));
 	}
 	
 	/**
@@ -116,8 +136,13 @@ public class University {
 	 * @return list of attendees separated by "\n"
 	 */
 	public String listAttendees(int courseCode){
-		//TODO: to be implemented
-		return null;
+		String res = new String("");
+		Course course = findCourse(courseCode);
+		for(int i=0;i<course.getNAttendees();i++) {
+			res += course.getAttendees()[i].toString();
+			res += '\n';
+		}
+		return res;
 	}
 
 	/**
@@ -132,7 +157,21 @@ public class University {
 	 * @return the list of courses the student is registered for
 	 */
 	public String studyPlan(int studentID){
-		//TODO: to be implemented
-		return null;
+		String res = new String("");
+		Student student = findStudent(studentID);
+		for(int i=0;i<student.getNCourses();i++) {
+			res += student.getCourses()[i].toString();
+			res += '\n';
+		}
+		return res;
 	}
+	
+	private Student findStudent(int id) {
+		return students[id - 10000];
+	}
+	
+	private Course findCourse(int code) {
+		return courses[code-10];
+	}
+	
 }
