@@ -8,13 +8,14 @@ import java.util.logging.Logger;
  *
  */
 public class UniversityExt extends University {
-	
+
 	private final static Logger logger = Logger.getLogger("University");
 
 	public UniversityExt(String name) {
 		super(name);
 		// Example of logging
 		logger.info("Creating extended university object");
+		super.useLogger(logger);
 	}
 
 	/**
@@ -25,7 +26,9 @@ public class UniversityExt extends University {
 	 * @param grade		grade ( 0-30)
 	 */
 	public void exam(int studentId, int courseID, int grade) {
-		
+		super.findStudent(studentId).setGrade(grade);
+		super.findCourse(courseID).setGrade(grade);
+		logger.info("Student "+studentId+" took an exam in course "+courseID+" with grade "+grade);
 	}
 
 	/**
@@ -41,9 +44,9 @@ public class UniversityExt extends University {
 	 * @return the average grade formatted as a string.
 	 */
 	public String studentAvg(int studentId) {
-		return null;
+		return super.findStudent(studentId).average();
 	}
-	
+
 	/**
 	 * Computes the average grades of all students that took the exam for a given course.
 	 * 
@@ -56,9 +59,9 @@ public class UniversityExt extends University {
 	 * @return the course average formatted as a string
 	 */
 	public String courseAvg(int courseId) {
-		return null;
+		return super.findCourse(courseId).average();
 	}
-	
+
 	/**
 	 * Retrieve information for the best students to award a price.
 	 * 
@@ -75,6 +78,32 @@ public class UniversityExt extends University {
 	 * @return info of the best three students.
 	 */
 	public String topThreeStudents() {
-		return null;
+		Student[] students = super.getStudents();
+		int enrolled = super.getEnrolled();
+		Student tmp;
+		String res = new String("");
+		for (int i =0;i<enrolled;i++) {
+			students[i].setScore();
+		}
+		for(int i = 0;i<enrolled-1 ;i++) {
+			for (int j = 0 ; j<i;j++) {
+				if (students[j].getScore()>students[i].getScore()) {
+					tmp = students[i];
+					students[i] = students[j];
+					students[j] = tmp;
+				}
+			}
+		}
+		if (enrolled >= 3) {
+			for (int i = enrolled-1;i>=enrolled-3;i--) {
+				res +=  students[i].getFirstName() +" "+ students[i].getLastName() + " : " + students[i].getScore() + "\n";
+			}
+		}else {
+			for (int i = enrolled-1;i>=0;i--) {
+				res +=  students[i].getFirstName() +" "+ students[i].getLastName() + " : " + students[i].getScore() + "\n";
+			}
+		}
+		return res;
 	}
+
 }

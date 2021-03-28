@@ -1,5 +1,7 @@
 package university;
 
+import java.util.logging.Logger;
+
 /**
  * This class represents a university education system.
  * 
@@ -14,6 +16,7 @@ public class University {
 	private Course[] courses;
 	private int enrolled = 0;
 	private int nCourses = 0;
+	private static Logger logger;
 
 	/**
 	 * Constructor
@@ -22,6 +25,7 @@ public class University {
 	public University(String name){
 		this.name = name;
 		rector = new Rector();
+		students = new Student[1000];
 	}
 	
 	/**
@@ -39,6 +43,15 @@ public class University {
 	 * @param first
 	 * @param last
 	 */
+	
+	Student[] getStudents() {
+		return students;
+	}
+
+	int getEnrolled() {
+		return enrolled;
+	}
+	
 	public void setRector(String first, String last){
 		rector.setName(first,last);
 	}
@@ -62,13 +75,11 @@ public class University {
 	 */
 	public int enroll(String first, String last){
 		int id = 10000 + enrolled;
-		if (enrolled == 0) {
-			students = new Student[1000];
-		}
 		students[enrolled] = new Student();
 		students[enrolled].setName(first,last);
 		students[enrolled].setid(id);
 		enrolled ++;
+		logger.info("New student enrolled: "+id+", "+first+" "+last);
 		return id;
 	}
 	
@@ -101,6 +112,7 @@ public class University {
 		courses[nCourses].setTeacher(teacher);
 		courses[nCourses].setCode(code);
 		nCourses ++;
+		logger.info("New course activated: "+code+", "+title+ " " +teacher);
 		return code;
 	}
 	
@@ -127,6 +139,7 @@ public class University {
 	public void register(int studentID, int courseCode){
 		findStudent(studentID).addCourse(findCourse(courseCode));
 		findCourse(courseCode).addAttendee(findStudent(studentID));
+		logger.info("Student "+studentID +" signed up for course "+courseCode);
 	}
 	
 	/**
@@ -166,12 +179,17 @@ public class University {
 		return res;
 	}
 	
-	private Student findStudent(int id) {
+	public Student findStudent(int id) {
 		return students[id - 10000];
 	}
 	
-	private Course findCourse(int code) {
+	public Course findCourse(int code) {
 		return courses[code-10];
 	}
+
+	public void useLogger(Logger logger) {
+		this.logger = logger;
+	}
+
 	
 }

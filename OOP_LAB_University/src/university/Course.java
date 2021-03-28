@@ -6,9 +6,16 @@ class Course {
 	private String title;
 	private Student[] attendees;
 	private int nAttendees = 0;
+	private int[] grades;
+	int takenExams = 0;
 	
 	public Course() {
 		teacher = new Teacher();
+		attendees = new Student[100];
+		grades = new int[100];
+		for (int i = 0;i<100;i++) {
+			grades[i] = -1;
+		}
 	}
 	
 	public Course(int code, String title, String teacher) {
@@ -16,6 +23,8 @@ class Course {
 		this.code =code;
 		this.title = title;
 		this.teacher.setName(teacher);
+		attendees = new Student[100];
+		grades = new int[100];
 	}
 	
 	void setCode(int code) {
@@ -36,9 +45,6 @@ class Course {
 
 	public void addAttendee(Student student) {
 		int exists = 0;
-		if (nAttendees==0) {
-			attendees = new Student[100];
-		}
 		for (int i = 0;i<nAttendees && exists == 0;i++) {
 			if(attendees[i].getID()==student.getID()) {
 				exists =1 ;
@@ -68,6 +74,25 @@ class Course {
 	
 	String getTeacher() {
 		return teacher.getName();
+	}
+
+	public String average() {
+		float sum = 0 ;
+		String res = new String();
+		for (int i =0; i<takenExams ;i++) {
+			sum += grades[i];
+		}
+		if (takenExams == 0) {
+			res = "No student has taken the exam in " + title;
+		}else {
+			res = "The average for the course " + title + " is: " + sum / takenExams;
+		}
+		return res;
+	}
+
+	public void setGrade(int grade) {
+		grades[takenExams] = grade;
+		takenExams++;
 	}
 	
 }
