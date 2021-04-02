@@ -16,7 +16,6 @@ public class University {
 	private Course[] courses;
 	private int enrolled = 0;
 	private int nCourses = 0;
-	private static Logger logger;
 
 	/**
 	 * Constructor
@@ -79,7 +78,6 @@ public class University {
 		students[enrolled].setName(first,last);
 		students[enrolled].setid(id);
 		enrolled ++;
-		logger.info("New student enrolled: "+id+", "+first+" "+last);
 		return id;
 	}
 	
@@ -112,10 +110,25 @@ public class University {
 		courses[nCourses].setTeacher(teacher);
 		courses[nCourses].setCode(code);
 		nCourses ++;
-		logger.info("New course activated: "+code+", "+title+ " " +teacher);
 		return code;
 	}
 	
+	public Course[] getCourses() {
+		return courses;
+	}
+
+	public void setCourses(Course[] courses) {
+		this.courses = courses;
+	}
+
+	public int getnCourses() {
+		return nCourses;
+	}
+
+	public void setnCourses(int nCourses) {
+		this.nCourses = nCourses;
+	}
+
 	/**
 	 * Retrieve the information for a given course.
 	 * 
@@ -139,7 +152,6 @@ public class University {
 	public void register(int studentID, int courseCode){
 		findStudent(studentID).addCourse(findCourse(courseCode));
 		findCourse(courseCode).addAttendee(findStudent(studentID));
-		logger.info("Student "+studentID +" signed up for course "+courseCode);
 	}
 	
 	/**
@@ -187,9 +199,8 @@ public class University {
 		return courses[code-10];
 	}
 
-	public void useLogger(Logger logger) {
-		this.logger = logger;
+	public void setEnrolled(int enrolled) {
+		this.enrolled = enrolled;
 	}
-
 	
 }

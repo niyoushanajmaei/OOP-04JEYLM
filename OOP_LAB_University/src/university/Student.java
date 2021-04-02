@@ -98,10 +98,16 @@ class Student {
 	}
 
 	public void setScore() {
-		for (int i = 0;i<takenExams;i++) {
-			score += grades[i];
+		score = 0;
+		if (takenExams==0) {
+			score = -1;
+		}else {
+			for (int i = 0;i<takenExams;i++) {
+				score += grades[i];
+			}
+			score = (score/takenExams) + (takenExams/nCourses * 10);
 		}
-		score = (score/takenExams) + (takenExams/nCourses * 10);
+		
 	}
 	
 }

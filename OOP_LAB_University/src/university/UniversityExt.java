@@ -15,7 +15,6 @@ public class UniversityExt extends University {
 		super(name);
 		// Example of logging
 		logger.info("Creating extended university object");
-		super.useLogger(logger);
 	}
 
 	/**
@@ -85,7 +84,7 @@ public class UniversityExt extends University {
 		for (int i =0;i<enrolled;i++) {
 			students[i].setScore();
 		}
-		for(int i = 0;i<enrolled-1 ;i++) {
+		for(int i = 0;i<enrolled ;i++) {
 			for (int j = 0 ; j<i;j++) {
 				if (students[j].getScore()>students[i].getScore()) {
 					tmp = students[i];
@@ -96,14 +95,50 @@ public class UniversityExt extends University {
 		}
 		if (enrolled >= 3) {
 			for (int i = enrolled-1;i>=enrolled-3;i--) {
-				res +=  students[i].getFirstName() +" "+ students[i].getLastName() + " : " + students[i].getScore() + "\n";
+				if (students[i].getScore()!=-1) {
+					res +=  students[i].getFirstName() +" "+ students[i].getLastName() + " : " + students[i].getScore() + "\n";
+				}
 			}
 		}else {
 			for (int i = enrolled-1;i>=0;i--) {
-				res +=  students[i].getFirstName() +" "+ students[i].getLastName() + " : " + students[i].getScore() + "\n";
+				if (students[i].getScore()!=-1)	
+					res +=  students[i].getFirstName() +" "+ students[i].getLastName() + " : " + students[i].getScore() + "\n";
 			}
 		}
 		return res;
+	}
+
+	@Override
+	public int enroll(String first, String last){
+		int id = 10000 + getEnrolled();
+		getStudents()[getEnrolled()] = new Student();
+		getStudents()[getEnrolled()].setName(first,last);
+		getStudents()[getEnrolled()].setid(id);
+		setEnrolled(getEnrolled()+1) ;
+		logger.info("New student enrolled: "+id+", "+first+" "+last);
+		return id;
+	}
+
+	@Override
+	public int activate(String title, String teacher){
+		int code = 10 + getnCourses();
+		if (getnCourses() == 0) {
+			setCourses(new Course[50]);
+		}
+		getCourses()[getnCourses()] = new Course();
+		getCourses()[getnCourses()].setTitle(title);
+		getCourses()[getnCourses()].setTeacher(teacher);
+		getCourses()[getnCourses()].setCode(code);
+		setnCourses(getnCourses() + 1);
+		logger.info("New course activated: "+code+", "+title+ " " +teacher);
+		return code;
+	}
+
+	@Override
+	public void register(int studentID, int courseCode){
+		findStudent(studentID).addCourse(findCourse(courseCode));
+		findCourse(courseCode).addAttendee(findStudent(studentID));
+		logger.info("Student "+studentID +" signed up for course "+courseCode);
 	}
 
 }
