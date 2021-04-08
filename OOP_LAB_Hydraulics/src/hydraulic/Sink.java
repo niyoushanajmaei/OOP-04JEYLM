@@ -12,7 +12,10 @@ public class Sink extends Element {
 	 */
 	public Sink(String name) {
 		super(name);
-		//TODO: complete
 	}
 	
+	@Override
+	public void connect(Element elem) {
+		return;
+	}
 }

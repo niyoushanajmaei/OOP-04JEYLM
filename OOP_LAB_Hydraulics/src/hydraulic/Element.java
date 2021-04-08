@@ -9,12 +9,21 @@ package hydraulic;
  */
 public abstract class Element {
 	
+	public static final double NO_FLOW = Double.NaN;
+	String name;
+	Element[] output;
+	Element input;
+	double inFlow = NO_FLOW;
+	double[] outFlow;
+	
 	/**
 	 * Constructor
 	 * @param name the name of the element
 	 */
 	public Element(String name){
-		// TODO: to be implemented
+		this.name = name;
+		outFlow = new double[1];
+		outFlow[0] = NO_FLOW;
 	}
 
 	/**
@@ -22,8 +31,7 @@ public abstract class Element {
 	 * @return the name of the element
 	 */
 	public String getName(){
-		// TODO: to be implemented
-		return null;
+		return name;
 	}
 	
 	/**
@@ -32,7 +40,9 @@ public abstract class Element {
 	 * @param elem the element that will be placed downstream
 	 */
 	public void connect(Element elem){
-		// TODO: to be implemented
+		elem.input = this;
+		output = new Element[1];
+		output[0] = elem;
 	}
 	
 	/**
@@ -40,8 +50,7 @@ public abstract class Element {
 	 * @return downstream element
 	 */
 	public Element getOutput(){
-		// TODO: to be implemented
-		return null;
+		return output[0];
 	}
 	
 }

@@ -32,3 +32,4 @@ public class PrintingObserver implements SimulationObserver {
 		return countNotifications;
 	}
 }
+0
