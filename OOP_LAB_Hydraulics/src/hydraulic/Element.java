@@ -53,4 +53,7 @@ public abstract class Element {
 		return output[0];
 	}
 	
+	
+	public abstract String toString();
+	
 }

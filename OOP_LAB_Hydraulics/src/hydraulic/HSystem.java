@@ -49,7 +49,7 @@ public class HSystem {
 				}else if(elements[i] instanceof Tap) {
 					observer.notifyFlow("Tap", elements[i].name, elements[i].inFlow, elements[i].outFlow);
 				}else if(elements[i] instanceof Split) {
-					observer.notifyFlow("Split", elements[i].name, elements[i].inFlow, new double[] {((Split)elements[i]).outFlow[0],((Split)elements[i]).outFlow[1]});
+					observer.notifyFlow("Split", elements[i].name, elements[i].inFlow, ((Split)elements[i]).outFlow);
 				}
 			}else {
 				observer.notifyFlow("Sink", elements[i].name, elements[i].inFlow, elements[i].outFlow);
@@ -69,8 +69,8 @@ public class HSystem {
 				elem.output[0].inFlow = 0;
 			}
 		}else if(elem instanceof Split) {
-			for(int j=0;j<2;j++) {
-				elem.outFlow[j] = elem.inFlow/2;
+			for(int j=0;j<((Split)elem).getNumOutput();j++) {
+				elem.outFlow[j] = elem.inFlow * ((Split)elem).getProportion()[j];
 				((Split) elem).output[j].inFlow = elem.outFlow[j];
 			}
 		}

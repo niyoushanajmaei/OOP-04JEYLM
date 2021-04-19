@@ -7,9 +7,11 @@ package hydraulic;
  * receive a stream that is half the input stream of the split.
  */
 
-public class Split extends Element {
+public class Split extends ElementExt {
 	
-	int nOutput = 0;
+	int numOuput = 2;
+	double[] proportions;
+	
 
 	/**
 	 * Constructor
@@ -18,8 +20,13 @@ public class Split extends Element {
 	public Split(String name) {
 		super(name);
 		outFlow = new double[2];
-		outFlow[0] = NO_FLOW;
-		outFlow[1] = NO_FLOW;
+		output = new Element[2];
+		proportions = new double[2];
+		for(int i=0;i<2;i++) {
+			outFlow[i] = NO_FLOW;
+			output[i] = null;
+			proportions[i] = 0.5;
+		}
 	}
     
 	/**
@@ -38,12 +45,20 @@ public class Split extends Element {
      * @param noutput the output number to be used to connect the element
      */
 	public void connect(Element elem, int noutput){
-		if(nOutput == 0) {
-			output = new Element[2];
-			output[noutput] = elem;
-		}else {
-			output[noutput] = elem;
-		}
-		nOutput++;
+		output[noutput] = elem;
+		elem.input = this;
+	}
+
+	@Override
+	public String toString() {
+		return "split" ;
+	}
+
+	public int getNumOutput() {
+		return 2;
+	}
+
+	public double[] getProportion() {
+		return proportions;
 	}
 }

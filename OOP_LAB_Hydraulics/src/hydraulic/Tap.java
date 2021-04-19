@@ -7,7 +7,7 @@ package hydraulic;
  * {@link #setOpen(boolean) setOpen()}.
  */
 
-public class Tap extends Element {
+public class Tap extends ElementExt {
 	
 	boolean open;
 	
@@ -22,6 +22,11 @@ public class Tap extends Element {
 	 */
 	public void setOpen(boolean open){
 		this.open = open;
+	}
+
+	@Override
+	public String toString() {
+		return "tap";
 	}
 
 }

@@ -9,14 +9,22 @@ package hydraulic;
 
 public class Multisplit extends Split {
 
+	int numOutput = 0;
+
 	/**
 	 * Constructor
 	 * @param name
 	 * @param numOutput
 	 */
 	public Multisplit(String name, int numOutput) {
-		super(name); //you can edit also this line
-		// TODO: to be implemented
+		super(name);
+		this.numOutput = numOutput;
+		output = new Element[numOutput];
+		outFlow = new double[numOutput];
+		for (int i=0;i<numOutput;i++) {
+			output[i] = null;
+			outFlow[i] = NO_FLOW;
+		}
 	}
     
 	/**
@@ -24,8 +32,7 @@ public class Multisplit extends Split {
 	 * @return array containing the two downstream element
 	 */
     public Element[] getOutputs(){
-    	//TODO: complete
-        return null;
+        return output;
     }
 
     /**
@@ -36,7 +43,8 @@ public class Multisplit extends Split {
      * @param noutput the output number to be used to connect the element
      */
 	public void connect(Element elem, int noutput){
-		//TODO: complete
+		elem.input = this;
+		output[noutput] = elem;
 	}
 	
 	/**
@@ -49,6 +57,11 @@ public class Multisplit extends Split {
 	 * @param proportions the proportions of flow for each output
 	 */
 	public void setProportions(double... proportions) {
-		// TODO: to be implemented
+		this.proportions = proportions;
+	}
+	
+	@Override
+	public int getNumOutput() {
+		return numOutput;
 	}
 }
