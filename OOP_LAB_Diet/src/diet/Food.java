@@ -1,6 +1,7 @@
 package diet;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 
 /**
@@ -9,6 +10,8 @@ import java.util.Collection;
  *
  */
 public class Food {
+	
+	Directory root = Directory.getInstance();
 
 	/**
 	 * Define a new raw material.
@@ -25,6 +28,7 @@ public class Food {
 									  double proteins,
 									  double carbs,
 									  double fat){
+		root.addRawMaterial(new RawMaterial(name,calories,proteins,carbs,fat));
 	}
 	
 	/**
@@ -32,8 +36,8 @@ public class Food {
 	 * 
 	 * @return collection of raw materials though the {@link NutritionalElement} interface
 	 */
-	public Collection<NutritionalElement> rawMaterials(){
-		return null;
+	public Collection<RawMaterial> rawMaterials(){
+		return root.getRawMaterials();
 	}
 	
 	/**
@@ -44,6 +48,11 @@ public class Food {
 	 * @return  a raw material though the {@link NutritionalElement} interface
 	 */
 	public NutritionalElement getRawMaterial(String name){
+		for (RawMaterial e : root.getRawMaterials()) {
+			if(name.equals(e.getName())) {
+				return e;
+			}
+		}
 		return null;
 	}
 
@@ -62,6 +71,7 @@ public class Food {
 								  double proteins,
 								  double carbs,
 								  double fat){
+		root.addProduct(new Product(name,calories,proteins,carbs,fat));
 	}
 	
 	/**
@@ -69,8 +79,8 @@ public class Food {
 	 * 
 	 * @return collection of products though the {@link NutritionalElement} interface
 	 */
-	public Collection<NutritionalElement> products(){
-		return null;
+	public Collection<Product> products(){
+		return root.getProducts();
 	}
 	
 	/**
@@ -79,6 +89,11 @@ public class Food {
 	 * @return  a product though the {@link NutritionalElement} interface
 	 */
 	public NutritionalElement getProduct(String name){
+		for (Product e : root.getProducts()) {
+			if(name.equals(e.getName())) {
+				return e;
+			}
+		}
 		return null;
 	}
 	
@@ -90,7 +105,9 @@ public class Food {
 	 * @return the newly created Recipe object
 	 */
 	public Recipe createRecipe(String name) {
-		return null;
+		Recipe recipe = new Recipe(name);
+		root.addRecipe(recipe);
+		return recipe;
 	}
 	
 	/**
@@ -98,8 +115,8 @@ public class Food {
 	 * 
 	 * @return collection of recipes though the {@link NutritionalElement} interface
 	 */
-	public Collection<NutritionalElement> recipes(){
-		return null;
+	public LinkedList<Recipe> recipes(){
+		return root.getRecipes();
 	}
 	
 	/**
@@ -109,7 +126,12 @@ public class Food {
 	 * 
 	 * @return  a recipe though the {@link NutritionalElement} interface
 	 */
-	public NutritionalElement getRecipe(String name){		
+	public NutritionalElement getRecipe(String name){
+		for (Recipe e : root.getRecipes()) {
+			if(name.equals(e.getName())) {
+				return e;
+			}
+		}
 		return null;
 	}
 	
@@ -121,7 +143,8 @@ public class Food {
 	 * @return the newly created menu
 	 */
 	public Menu createMenu(String name) {
-		return null;
+		Menu menu = new Menu(name);
+		return menu;
 	}
 	
 }

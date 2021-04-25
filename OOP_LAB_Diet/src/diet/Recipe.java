@@ -1,5 +1,8 @@
 package diet;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents a recipe of the diet.
  * 
@@ -10,7 +13,21 @@ package diet;
  *
  */
 public class Recipe implements NutritionalElement {
+	
+	Directory root = Directory.getInstance();
     
+	String name;
+	Map<String,Double> materials = new HashMap<>();
+	double calories;
+	double proteins;
+	double carbs;
+	double fat;
+	int q;
+
+	public Recipe(String name) {
+		this.name = name;
+		root.addRecipe(this);
+	}
 
 	/**
 	 * Adds a given quantity of an ingredient to the recipe.
@@ -21,32 +38,48 @@ public class Recipe implements NutritionalElement {
 	 * @return the same Recipe object, it allows method chaining.
 	 */
 	public Recipe addIngredient(String material, double quantity) {
-		return null;
+		materials.put(material,quantity);
+		for (RawMaterial e : root.getRawMaterials()) {
+			if (e.getName().equals(material)) {
+				calories = (calories*q + e.getCalories()*quantity)/(q+quantity);
+				//System.out.println(calories);
+				proteins = (proteins*q + e.getProteins()*quantity)/(q+quantity);
+				carbs = (carbs*q + e.getCarbs()*quantity)/(q+quantity);
+				fat = (fat*q + e.getFat()*quantity)/(q+quantity);;
+			}
+		}
+		for (Recipe r : root.getRecipes()) {
+			if (r.getName().equals(this.name)) {
+				r = this;
+			}
+		}
+		q+=quantity;
+		return this;
 	}
 
 	@Override
 	public String getName() {
-		return null;
+		return name;
 	}
 
 	@Override
 	public double getCalories() {
-		return 0.0;
+		return calories;
 	}
 
 	@Override
 	public double getProteins() {
-		return 0.0;
+		return proteins;
 	}
 
 	@Override
 	public double getCarbs() {
-		return 0.0;
+		return carbs;
 	}
 
 	@Override
 	public double getFat() {
-		return 0.0;
+		return fat;
 	}
 
 	/**
@@ -78,6 +111,10 @@ public class Recipe implements NutritionalElement {
 	 */
 	@Override
 	public String toString() {
-		return null;
+		String res = "";
+		for(String k : materials.keySet()) {
+			res += k+ " : " + materials.get(k) + "\n";
+		}
+		return res;
 	}
 }
