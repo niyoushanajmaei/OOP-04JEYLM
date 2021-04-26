@@ -113,8 +113,16 @@ public class Recipe implements NutritionalElement {
 	public String toString() {
 		String res = "";
 		for(String k : materials.keySet()) {
-			res += k+ " : " + materials.get(k) + "\n";
+			res += k+ " : " + truncate(materials.get(k)) + "\n";
 		}
 		return res;
 	}
+
+	private Double truncate(Double d) {
+		int intValue = d.intValue();
+		Double floating = d-intValue;
+		int perc = ((Double)(floating*10)).intValue();
+		return (double) (intValue + perc/10);
+	}
+	
 }

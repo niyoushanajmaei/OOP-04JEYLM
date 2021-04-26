@@ -39,7 +39,8 @@ public class Menu implements NutritionalElement {
 	public Menu addRecipe(String recipe, double quantity) {
 		recipes.put(recipe, quantity);
 		for (Recipe r : root.getRecipes()) {
-			System.out.println(root.getRecipes().size());
+			//System.out.println(root.getRecipes().size());
+			//System.out.println(r.toString());
 			if (r.getName().equals(recipe)) {
 				calories += r.getCalories() *quantity/100;
 				//System.out.println(r.getCalories());
