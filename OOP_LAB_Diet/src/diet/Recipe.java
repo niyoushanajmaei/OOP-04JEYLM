@@ -1,6 +1,6 @@
 package diet;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -17,7 +17,7 @@ public class Recipe implements NutritionalElement {
 	
 	LinkedList<RawMaterial> rawMaterials;
 	String name;
-	Map<String,Double> materials = new HashMap<>();
+	Map<String,Double> materials = new LinkedHashMap<>();
 	double calories;
 	double proteins;
 	double carbs;

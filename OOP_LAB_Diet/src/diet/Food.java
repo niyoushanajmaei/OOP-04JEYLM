@@ -1,6 +1,7 @@
 package diet;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 /**
@@ -48,6 +49,7 @@ public class Food {
 	 * @return collection of raw materials though the {@link NutritionalElement} interface
 	 */
 	public Collection<RawMaterial> rawMaterials(){
+		rawMaterials.sort(Comparator.comparing(RawMaterial::getName));
 		return rawMaterials;
 	}
 	
@@ -95,6 +97,7 @@ public class Food {
 	 * @return collection of products though the {@link NutritionalElement} interface
 	 */
 	public Collection<Product> products(){
+		products.sort(Comparator.comparing(Product::getName));
 		return products;
 	}
 	
@@ -135,7 +138,8 @@ public class Food {
 	 * 
 	 * @return collection of recipes though the {@link NutritionalElement} interface
 	 */
-	public LinkedList<Recipe> recipes(){
+	public Collection<Recipe> recipes(){
+		recipes.sort(Comparator.comparing(Recipe::getName));
 		return recipes;
 	}
 	
