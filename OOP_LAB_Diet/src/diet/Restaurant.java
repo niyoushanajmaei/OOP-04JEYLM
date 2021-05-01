@@ -1,4 +1,8 @@
 package diet;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.Scanner;
+
 import diet.Order.OrderStatus;
 
 /**
@@ -6,6 +10,11 @@ import diet.Order.OrderStatus;
  *
  */
 public class Restaurant {
+	
+	private String name;
+	private Food food;
+	private String[] hours;
+	private LinkedList<Order> orders = new LinkedList<>();
 	
 	/**
 	 * Constructor for a new restaurant.
@@ -17,7 +26,8 @@ public class Restaurant {
 	 * @param food	reference food object
 	 */
 	public Restaurant(String name, Food food) {
-		// TODO: implement constructor
+		this.name = name;
+		this.food = food;
 	}
 	
 	/**
@@ -26,7 +36,7 @@ public class Restaurant {
 	 * @return name
 	 */
 	public String getName() {
-		return null;
+		return name;
 	}
 	
 	/**
@@ -42,9 +52,20 @@ public class Restaurant {
 	 * @param hm a list of opening hours
 	 */
 	public void setHours(String ... hm) {
+		if (hm.length %2 == 0) {
+			hours = hm;
+		}else {
+			System.err.println("Restaurant hours size was odd");
+			System.exit(1);
+		}
 	}
 	
 	public Menu getMenu(String name) {
+		for (Menu m:food.getMenus()) {
+			if (m.getName().equals(name)) {
+				return m;
+			}
+		}
 		return null;
 	}
 	
@@ -56,7 +77,7 @@ public class Restaurant {
 	 * @return the newly created menu
 	 */
 	public Menu createMenu(String name) {
-		return null;
+		return food.createMenu(name);
 	}
 
 	/**
@@ -79,6 +100,59 @@ public class Restaurant {
 	 * @return the description of orders satisfying the criterion
 	 */
 	public String ordersWithStatus(OrderStatus status) {
-		return null;
+		String res = "";
+		orders.sort(Comparator.comparing(Order::getUserName).thenComparing(Order::getDelivery));
+		for (Order o:orders) {
+			if(o.getStatus().equals(status)) {
+				res+=o;
+			}
+		}
+		return res;
 	}
+
+	public boolean isOpen(String time) {
+		int h,m,h1,m1,h2,m2;
+		h = Integer.parseInt(time.substring(0,2));
+		m = Integer.parseInt(time.substring(3,5));
+		for (int i=0;i<hours.length;i += 2) {
+			h1 = Integer.parseInt(hours[i].substring(0,2));
+			m1 = Integer.parseInt(hours[i].substring(3,5));
+			h2 = Integer.parseInt(hours[i+1].substring(0,2));
+			m2 = Integer.parseInt(hours[i+1].substring(3,5));
+			if (h*60+m >= h1*60+m1 && h*60+m < h2*60+m2) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public String nextOpen(int h, int m) {
+		int h1,m1;
+		String res;
+		//System.out.println("h: "+ h+" m: "+ m);
+		for (int i=0;i<hours.length;i += 2) {
+			//System.out.println(hours[i] + " " + hours[i+1]);
+			h1 = Integer.parseInt(hours[i].substring(0,2));
+			m1 = Integer.parseInt(hours[i].substring(3,5));
+			//System.out.println("h1: " + h1+ " m1: "+m1);
+			if ( h*60+m < h1*60+m1) {
+				res = String.format("%02d:%02d", h1, m1);
+				return res;
+			}
+		}
+		return "23:59";
+	}
+
+	public LinkedList<Menu> getMenus() {
+		return food.getMenus();
+	}
+
+	public void addOrder(Order order) {
+		orders.add(order);
+	}
+
+	public LinkedList<Order> getOrders() {
+		return orders;
+	}
+
 }

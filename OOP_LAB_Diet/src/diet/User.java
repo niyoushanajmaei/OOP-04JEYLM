@@ -1,17 +1,32 @@
 package diet;
 
+import java.util.LinkedList;
+
 /**
  * Represent a take-away system user
  *  
  */
 public class User {
+	
+	private String first;
+	private String last;
+	private String email;
+	private String phone;
+	private LinkedList<Order> orders = new LinkedList<>();
 		
+	public User(String firstName, String lastName, String email, String phoneNumber) {
+		this.first = firstName;
+		this.last = lastName;
+		this.email = email;
+		this.phone = phoneNumber;
+	}
+
 	/**
 	 * get user's last name
 	 * @return last name
 	 */
 	public String getLastName() {
-		return null;
+		return last;
 	}
 	
 	/**
@@ -19,7 +34,7 @@ public class User {
 	 * @return first name
 	 */
 	public String getFirstName() {
-		return null;
+		return first;
 	}
 	
 	/**
@@ -27,7 +42,7 @@ public class User {
 	 * @return email
 	 */
 	public String getEmail() {
-		return null;
+		return email;
 	}
 	
 	/**
@@ -35,7 +50,7 @@ public class User {
 	 * @return  phone number
 	 */
 	public String getPhone() {
-		return null;
+		return phone;
 	}
 	
 	/**
@@ -43,6 +58,7 @@ public class User {
 	 * @param email new email
 	 */
 	public void SetEmail(String email) {
+		this.email = email;
 	}
 	
 	/**
@@ -50,6 +66,15 @@ public class User {
 	 * @param phone new phone number
 	 */
 	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	
+	public String toString(){
+		return first+ " "+ last;
+	}
+
+	public void addOrder(Order order) {
+		orders.add(order);
 	}
 	
 }

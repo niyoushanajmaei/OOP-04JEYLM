@@ -14,11 +14,13 @@ public class Food {
 	private LinkedList<RawMaterial> rawMaterials;
 	private LinkedList<Product> products;
 	private LinkedList<Recipe> recipes;
+	private LinkedList<Menu> menus;
 	
 	public Food() {
 		rawMaterials = new LinkedList<>();
 		products = new LinkedList<>();
 		recipes = new LinkedList<>();
+		menus = new LinkedList<>();
 	}
 
 	/**
@@ -170,7 +172,12 @@ public class Food {
 		Menu menu = new Menu(name);
 		menu.setReferenceRecipes(recipes);
 		menu.setReferenceProducts(products);
+		menus.add(menu);
 		return menu;
+	}
+
+	public LinkedList<Menu> getMenus() {
+		return menus;
 	}
 	
 }

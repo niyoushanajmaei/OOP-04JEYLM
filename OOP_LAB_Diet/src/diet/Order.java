@@ -1,9 +1,19 @@
 package diet;
 
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * Represents an order in the take-away system
  */
 public class Order {
+	
+	String delivery;
+	String restaurantName;
+	String userName;
+	LinkedList<Menu> referenceMenus;
+	Map <String,Integer> menus = new TreeMap<>();
  
 	/**
 	 * Defines the possible order status
@@ -17,7 +27,11 @@ public class Order {
 	public enum PaymentMethod {
 		PAID, CASH, CARD;
 	}
+	
+	private OrderStatus status = OrderStatus.ORDERED;
+	private PaymentMethod payment = PaymentMethod.CASH;
 		
+	
 	/**
 	 * Total order price
 	 * @return order price
@@ -32,6 +46,7 @@ public class Order {
 	 * @param method payment method
 	 */
 	public void setPaymentMethod(PaymentMethod method) {
+		this.payment = method;
 	}
 	
 	/**
@@ -40,7 +55,7 @@ public class Order {
 	 * @return payment method
 	 */
 	public PaymentMethod getPaymentMethod() {
-		return null;
+		return payment;
 	}
 	
 	/**
@@ -48,6 +63,7 @@ public class Order {
 	 * @param newStatus order status
 	 */
 	public void setStatus(OrderStatus newStatus) {
+		this.status = newStatus;
 	}
 	
 	/**
@@ -55,7 +71,7 @@ public class Order {
 	 * @return order status
 	 */
 	public OrderStatus getStatus(){
-		return null;
+		return status;
 	}
 	
 	/**
@@ -67,15 +83,15 @@ public class Order {
 	 * @param quantity quantity of the menu
 	 * @return this order to enable method chaining
 	 */
-	public Order addMenus(String menu, int quantity) {
-
+	public Order addMenus(String menuName, int quantity) {
+		menus.put(menuName,quantity);
 		return this;
 	}
 	
 	/**
 	 * Converts to a string as:
 	 * <pre>
-	 * RESTAURANT_NAME, USER_FIRST_NAME USER_LAST_NAME : DELIVERY(HH:MM):
+	 * RESTAURANT_NAME, USER_FIRST_NAME USER_LAST_NAME : HH:MM:
 	 * 	MENU_NAME_1->MENU_QUANTITY_1
 	 * 	...
 	 * 	MENU_NAME_k->MENU_QUANTITY_k
@@ -83,7 +99,35 @@ public class Order {
 	 */
 	@Override
 	public String toString() {
-		return null;
+		String res = restaurantName + ", "+userName + " : (" + delivery+"):\n";
+		for (Map.Entry<String,Integer> e: menus.entrySet()) {
+			res = res+ "\t" + e.getKey() +"->"+e.getValue()+"\n";
+		}
+		return res;
+	}
+
+	public void setDelivery(String delivery) {
+		this.delivery = delivery;
+	}
+
+	public void setReferenceMenus(LinkedList<Menu> menus) {
+		this.referenceMenus = menus;
+	}
+
+	public void setRestaurantName(String restaurantName) {
+		this.restaurantName = restaurantName;
+	}
+
+	public void setUserName(String string) {
+		userName = string;
+	}
+	
+	public String getUserName() {
+		return userName;
+	}
+	
+	public String getDelivery() {
+		return delivery;
 	}
 	
 }
