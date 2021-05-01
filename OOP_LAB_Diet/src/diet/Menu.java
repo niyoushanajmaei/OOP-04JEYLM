@@ -12,8 +12,8 @@ import java.util.Map;
  */
 public class Menu implements NutritionalElement {
 	
-	Directory root = Directory.getInstance();
-	
+	LinkedList<Recipe> referenceRecipes;
+	LinkedList <Product> referenceProducts;
 	Map<String,Double> recipes = new HashMap<>();
 	LinkedList<String> products = new LinkedList<>();
 	String name;
@@ -21,6 +21,7 @@ public class Menu implements NutritionalElement {
 	double proteins;
 	double carbs;
 	double fat;
+	
 	
 	public Menu(String name) {
 		this.name = name;
@@ -38,7 +39,7 @@ public class Menu implements NutritionalElement {
 	 */
 	public Menu addRecipe(String recipe, double quantity) {
 		recipes.put(recipe, quantity);
-		for (Recipe r : root.getRecipes()) {
+		for (Recipe r : referenceRecipes) {
 			//System.out.println(root.getRecipes().size());
 			//System.out.println(r.toString());
 			if (r.getName().equals(recipe)) {
@@ -62,7 +63,7 @@ public class Menu implements NutritionalElement {
 	 */
 	public Menu addProduct(String product) {
 		products.add(product);
-		for(Product p : root.getProducts()) {
+		for(Product p : referenceProducts) {
 			if (p.getName().equals(product)) {
 				calories += p.getCalories() ;
 				//System.out.println(p.getCalories());
@@ -128,5 +129,14 @@ public class Menu implements NutritionalElement {
 	public boolean per100g() {
 		// nutritional values are provided for the whole menu.
 		return false;
+	}
+
+
+	public void setReferenceProducts(LinkedList<Product> products) {
+		referenceProducts = products;
+	}
+
+	public void setReferenceRecipes(LinkedList<Recipe> recipes) {
+		referenceRecipes = recipes;
 	}
 }

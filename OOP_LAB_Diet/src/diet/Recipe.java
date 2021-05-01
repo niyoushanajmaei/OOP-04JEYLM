@@ -1,6 +1,7 @@
 package diet;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -14,8 +15,7 @@ import java.util.Map;
  */
 public class Recipe implements NutritionalElement {
 	
-	Directory root = Directory.getInstance();
-    
+	LinkedList<RawMaterial> rawMaterials;
 	String name;
 	Map<String,Double> materials = new HashMap<>();
 	double calories;
@@ -26,7 +26,6 @@ public class Recipe implements NutritionalElement {
 
 	public Recipe(String name) {
 		this.name = name;
-		root.addRecipe(this);
 	}
 
 	/**
@@ -39,18 +38,13 @@ public class Recipe implements NutritionalElement {
 	 */
 	public Recipe addIngredient(String material, double quantity) {
 		materials.put(material,quantity);
-		for (RawMaterial e : root.getRawMaterials()) {
+		for (RawMaterial e : rawMaterials) {
 			if (e.getName().equals(material)) {
 				calories = (calories*q + e.getCalories()*quantity)/(q+quantity);
 				//System.out.println(calories);
 				proteins = (proteins*q + e.getProteins()*quantity)/(q+quantity);
 				carbs = (carbs*q + e.getCarbs()*quantity)/(q+quantity);
 				fat = (fat*q + e.getFat()*quantity)/(q+quantity);;
-			}
-		}
-		for (Recipe r : root.getRecipes()) {
-			if (r.getName().equals(this.name)) {
-				r = this;
 			}
 		}
 		q+=quantity;
@@ -123,6 +117,10 @@ public class Recipe implements NutritionalElement {
 		Double floating = d-intValue;
 		int perc = ((Double)(floating*10)).intValue();
 		return (double) (intValue + perc/10);
+	}
+
+	public void setRawMaterials(LinkedList<RawMaterial> rawMaterials) {
+		this.rawMaterials = rawMaterials;
 	}
 	
 }
