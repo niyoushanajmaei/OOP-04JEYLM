@@ -6,9 +6,15 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Class {@code Region} represents the main facade
@@ -19,7 +25,12 @@ import java.util.Optional;
  *
  */
 public class Region {
-
+	
+	String name;
+	LinkedList<String> altitudeRanges; 
+	Set<Municipality> municipalities;
+	LinkedList<MountainHut> mountainHuts;
+	
 	/**
 	 * Create a region with the given name.
 	 * 
@@ -27,7 +38,10 @@ public class Region {
 	 *            the name of the region
 	 */
 	public Region(String name) {
-
+		this.name = name;
+		altitudeRanges = new LinkedList<String>();
+		municipalities = new LinkedHashSet<Municipality>();
+		mountainHuts = new LinkedList<MountainHut>();
 	}
 
 	/**
@@ -36,7 +50,7 @@ public class Region {
 	 * @return the name of the region
 	 */
 	public String getName() {
-		return null;
+		return  name;
 	}
 
 	/**
@@ -47,7 +61,9 @@ public class Region {
 	 *            an array of textual ranges
 	 */
 	public void setAltitudeRanges(String... ranges) {
-
+		for (String st:ranges) {
+			altitudeRanges.add(st);
+		}
 	}
 
 	/**
@@ -59,7 +75,17 @@ public class Region {
 	 * @return a string representing the range
 	 */
 	public String getAltitudeRange(Integer altitude) {
-		return null;
+		for(String st : altitudeRanges) {
+			//c is the position of - in the string altitude
+			int i,f,c=0;
+			for(c=0;!st.substring(c,c+1).equals("-");c++);
+			i = Integer.parseInt(st.substring(0, c));
+			f = Integer.parseInt(st.substring(c+1,st.length()));
+			if (altitude > i && altitude <=f) {
+				return st;
+			}
+		}
+		return "0-INF";
 	}
 
 	/**
@@ -75,7 +101,15 @@ public class Region {
 	 * @return the municipality
 	 */
 	public Municipality createOrGetMunicipality(String name, String province, Integer altitude) {
-		return null;
+		Municipality newm;
+		for (Municipality m : municipalities) {
+			if(name.equals(m.getName())) {
+				return m;
+			}
+		}
+		newm = new Municipality(name, province, altitude);
+		municipalities.add(newm);
+		return newm;
 	}
 
 	/**
@@ -84,7 +118,7 @@ public class Region {
 	 * @return a collection of municipalities
 	 */
 	public Collection<Municipality> getMunicipalities() {
-		return null;
+		return municipalities;
 	}
 
 	/**
@@ -103,7 +137,15 @@ public class Region {
 	 */
 	public MountainHut createOrGetMountainHut(String name, String category, Integer bedsNumber,
 			Municipality municipality) {
-		return null;
+		MountainHut newmh;
+		for (MountainHut mh : mountainHuts) {
+			if(name.equals(mh.getName())) {
+				return mh;
+			}
+		}
+		newmh = new MountainHut(name,category,bedsNumber,municipality);
+		mountainHuts.add(newmh);
+		return newmh;
 	}
 
 	/**
@@ -124,7 +166,15 @@ public class Region {
 	 */
 	public MountainHut createOrGetMountainHut(String name, Integer altitude, String category, Integer bedsNumber,
 			Municipality municipality) {
-		return null;
+		MountainHut newmh;
+		for (MountainHut mh : mountainHuts) {
+			if(name.equals(mh.getName())) {
+				return mh;
+			}
+		}
+		newmh = new MountainHut(name,altitude,category,bedsNumber,municipality);
+		mountainHuts.add(newmh);
+		return newmh;
 	}
 
 	/**
@@ -133,7 +183,7 @@ public class Region {
 	 * @return a collection of mountain huts
 	 */
 	public Collection<MountainHut> getMountainHuts() {
-		return null;
+		return  mountainHuts;
 	}
 
 	/**
@@ -159,8 +209,23 @@ public class Region {
 	 *            the path of the file
 	 */
 	public static Region fromFile(String name, String file) {
-		return null;
+		List<String> data = readData(file);
+		Region r = new Region(name);
+		data.remove(0);
+		for (String st:data) {
+			String[] columns = st.split(";");
+			Municipality m = r.createOrGetMunicipality(columns[1], columns[0], Integer.parseInt(columns[2]));
+			if (columns[4].length()>0) {
+				//with altitude
+				r.createOrGetMountainHut(columns[3],Integer.parseInt(columns[4]), columns[5], Integer.parseInt(columns[6]), m);
+			}else {
+				//without altitude
+				r.createOrGetMountainHut(columns[3], columns[5], Integer.parseInt(columns[6]), m);
+			}
+		}
+		return r;
 	}
+
 
 	/**
 	 * Internal class that can be used to read the lines of
@@ -191,7 +256,16 @@ public class Region {
 	 *         value
 	 */
 	public Map<String, Long> countMunicipalitiesPerProvince() {
-		return null;
+		Map<String,Long> res = new LinkedHashMap<String,Long>();
+		for(Municipality m:municipalities) {
+			if (res.containsKey(m.getProvince())) {
+				Long t = res.get(m.getProvince());
+				res.put(m.getProvince(), t+1);
+			}else {
+				res.put(m.getProvince(),(long) 1);
+			}
+		}
+		return res;
 	}
 
 	/**
@@ -200,8 +274,26 @@ public class Region {
 	 * @return a map with the province as key and, as value, a map with the
 	 *         municipality as key and the number of mountain huts as value
 	 */
+
 	public Map<String, Map<String, Long>> countMountainHutsPerMunicipalityPerProvince() {
-		return null;
+		Map<String,Map<String,Long>> res = new LinkedHashMap<String,Map<String,Long>>();
+		for(MountainHut mh:mountainHuts) {
+			String mun = mh.getMunicipality().getName();
+			String prov = mh.getMunicipality().getProvince();
+			if (res.containsKey(prov)){
+				if (res.get(prov).containsKey(mun)) {
+					Long t = res.get(prov).get(mun);
+					res.get(prov).put(mun, t+1);
+				}else {
+					res.get(prov).put(mun,(long) 1);
+				}
+			}else {
+				Map<String,Long> t = new LinkedHashMap<String,Long>();
+				t.put(mun, (long) 1);
+				res.put(prov,t);
+			}
+		}
+		return res;
 	}
 
 	/**
@@ -212,7 +304,22 @@ public class Region {
 	 *         as value
 	 */
 	public Map<String, Long> countMountainHutsPerAltitudeRange() {
-		return null;
+		Map<String,Long> res = new TreeMap<String,Long>();
+		for (String st:altitudeRanges) {
+			res.put(st,(long) 0);
+		}
+		for(MountainHut mh: mountainHuts) {
+			if (mh.getAltitude().isPresent()){
+				String t = this.getAltitudeRange(mh.getAltitude().get());
+				Long tmp = res.get(t);
+				res.put(t, tmp+1);
+			}else {
+				String t = this.getAltitudeRange(mh.getMunicipality().getAltitude());
+				Long tmp = res.get(t);
+				res.put(t, tmp+1);
+			}
+		}
+		return res;
 	}
 
 	/**
@@ -222,7 +329,17 @@ public class Region {
 	 * @return a map with the province as key and the total number of beds as value
 	 */
 	public Map<String, Integer> totalBedsNumberPerProvince() {
-		return null;
+		Map<String, Integer> res = new LinkedHashMap<>();
+		for (MountainHut mh: mountainHuts) {
+			String prov = mh.getMunicipality().getProvince();
+			if (res.containsKey(prov)) {
+				int nb = res.get(prov);
+				res.put(prov, nb+mh.getBedsNumber());
+			}else {
+				res.put(prov, mh.getBedsNumber());
+			}
+		}
+		return res;
 	}
 
 	/**
@@ -234,7 +351,27 @@ public class Region {
 	 *         as value
 	 */
 	public Map<String, Optional<Integer>> maximumBedsNumberPerAltitudeRange() {
-		return null;
+		Map<String,Optional<Integer>> res = new TreeMap<String,Optional<Integer>>();
+		for (String st:altitudeRanges) {
+			res.put(st,Optional.ofNullable(null));
+		}
+		for(MountainHut mh: mountainHuts) {
+			int alt;
+			if (mh.getAltitude().isPresent()){
+				alt = mh.getAltitude().get();
+			}else {
+				alt = mh.getMunicipality().getAltitude();
+			}
+			String t = this.getAltitudeRange(alt);
+			if (res.get(t).isPresent()) {
+				if(mh.getBedsNumber() > res.get(t).get()) {
+					res.put(t,Optional.ofNullable(mh.getBedsNumber()));
+				}
+			}else {
+				res.put(t, Optional.ofNullable(mh.getBedsNumber()));
+			}
+		}
+		return res;
 	}
 
 	/**
@@ -245,7 +382,38 @@ public class Region {
 	 *         list of municipality names as value
 	 */
 	public Map<Long, List<String>> municipalityNamesPerCountOfMountainHuts() {
-		return null;
+		Map<Long,List<String>> res = new LinkedHashMap<Long,List<String>>();
+		
+		Map<String,Long> numberOfMountainHutsPerMunicipality = new LinkedHashMap<String,Long>();
+		for (MountainHut mh: mountainHuts) {
+			String mun = mh.getMunicipality().getName();
+			if(numberOfMountainHutsPerMunicipality.containsKey(mun)) {
+				long num = numberOfMountainHutsPerMunicipality.get(mun);
+				numberOfMountainHutsPerMunicipality.put(mun, num+1);
+			}else {
+				numberOfMountainHutsPerMunicipality.put(mun,(long) 1);
+			}
+		}
+		
+		Set<Long> numbers = (Set<Long>) numberOfMountainHutsPerMunicipality.values();
+		for(Long k:numbers) {
+			for (Map.Entry<String,Long> e:numberOfMountainHutsPerMunicipality.entrySet()) {
+				if (k==e.getValue()) {
+					if(res.containsKey(k)) {
+						List<String> values = res.get(k);
+						values.add(e.getKey());
+						values.sort(Comparator.naturalOrder());
+						res.put(k, values);
+					}else {
+						List<String> values = new LinkedList<String>();
+						values.add(e.getKey());
+						res.put(k, values);
+					}
+				}
+			}
+		}
+		
+		return res;
 	}
 
 }
