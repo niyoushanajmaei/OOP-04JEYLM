@@ -84,6 +84,10 @@ public class Region {
 			if (altitude > i && altitude <=f) {
 				return st;
 			}
+			// 0 is included in the interval containing 0
+			if (i==0 && altitude==0) {
+				return st;
+			}
 		}
 		return "0-INF";
 	}
@@ -222,6 +226,7 @@ public class Region {
 				//without altitude
 				r.createOrGetMountainHut(columns[3], columns[5], Integer.parseInt(columns[6]), m);
 			}
+
 		}
 		return r;
 	}
@@ -304,20 +309,34 @@ public class Region {
 	 *         as value
 	 */
 	public Map<String, Long> countMountainHutsPerAltitudeRange() {
+		String t;
+		Integer alt;
 		Map<String,Long> res = new TreeMap<String,Long>();
-		for (String st:altitudeRanges) {
-			res.put(st,(long) 0);
-		}
 		for(MountainHut mh: mountainHuts) {
 			if (mh.getAltitude().isPresent()){
-				String t = this.getAltitudeRange(mh.getAltitude().get());
+				alt = mh.getAltitude().get();
+			}else {
+				alt = mh.getMunicipality().getAltitude();
+			}
+			t = this.getAltitudeRange(alt);
+			if (res.containsKey(t)) {
 				Long tmp = res.get(t);
 				res.put(t, tmp+1);
 			}else {
-				String t = this.getAltitudeRange(mh.getMunicipality().getAltitude());
-				Long tmp = res.get(t);
-				res.put(t, tmp+1);
+				res.put(t, (long) 1);
 			}
+			
+			/*
+			if (t.equals("0-1000")) {
+				if (mh.getAltitude().isPresent()){
+					System.out.println("present altitude");
+				}
+				System.out.println("altitude is: "+alt);
+				System.out.println("Altitude Range: " + t);
+				System.out.println(res.get(t)+"\n");
+			}
+			*/
+			
 		}
 		return res;
 	}
@@ -352,9 +371,6 @@ public class Region {
 	 */
 	public Map<String, Optional<Integer>> maximumBedsNumberPerAltitudeRange() {
 		Map<String,Optional<Integer>> res = new TreeMap<String,Optional<Integer>>();
-		for (String st:altitudeRanges) {
-			res.put(st,Optional.ofNullable(null));
-		}
 		for(MountainHut mh: mountainHuts) {
 			int alt;
 			if (mh.getAltitude().isPresent()){
@@ -363,12 +379,17 @@ public class Region {
 				alt = mh.getMunicipality().getAltitude();
 			}
 			String t = this.getAltitudeRange(alt);
-			if (res.get(t).isPresent()) {
+			if (res.containsKey(t)) {
 				if(mh.getBedsNumber() > res.get(t).get()) {
 					res.put(t,Optional.ofNullable(mh.getBedsNumber()));
 				}
 			}else {
 				res.put(t, Optional.ofNullable(mh.getBedsNumber()));
+			}
+		}
+		for(String st:altitudeRanges) {
+			if(!res.containsKey(st)) {
+				res.put(st,Optional.ofNullable(null));
 			}
 		}
 		return res;
@@ -395,7 +416,11 @@ public class Region {
 			}
 		}
 		
-		Set<Long> numbers = (Set<Long>) numberOfMountainHutsPerMunicipality.values();
+		Set<Long> numbers = new LinkedHashSet<Long>();
+		for (Long l:numberOfMountainHutsPerMunicipality.values()) {
+			numbers.add(l);
+		}
+		
 		for(Long k:numbers) {
 			for (Map.Entry<String,Long> e:numberOfMountainHutsPerMunicipality.entrySet()) {
 				if (k==e.getValue()) {

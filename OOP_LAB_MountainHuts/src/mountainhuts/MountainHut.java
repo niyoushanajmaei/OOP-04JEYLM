@@ -14,7 +14,7 @@ public class MountainHut {
 	String category;
 	int bedsNumber;
 	Municipality municipality;
-	int altitude;
+	Optional<Integer> altitude;
 	
 	public MountainHut (String name, String category, Integer bedsNumber,
 			Municipality municipality) {
@@ -22,6 +22,8 @@ public class MountainHut {
 		this.category = category;
 		this.bedsNumber = bedsNumber;
 		this.municipality = municipality;
+		Optional<Integer> opt = Optional.ofNullable(null);
+		altitude=opt;
 	}
 	
 	public MountainHut (String name, Integer altitude, String category, Integer bedsNumber,
@@ -30,7 +32,8 @@ public class MountainHut {
 		this.category = category;
 		this.bedsNumber = bedsNumber;
 		this.municipality = municipality;
-		this.altitude = altitude;
+		Optional<Integer> opt = Optional.ofNullable(altitude);
+		this.altitude = opt;
 	}
 
 	
@@ -49,8 +52,7 @@ public class MountainHut {
 	 * @return optional containing the altitude
 	 */
 	public Optional<Integer> getAltitude() {
-		Optional<Integer> opt = Optional.ofNullable(altitude);
-		return opt;
+		return altitude;
 	}
 
 	/**
