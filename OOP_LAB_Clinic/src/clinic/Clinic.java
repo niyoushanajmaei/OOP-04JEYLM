@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 /**
  * Represents a clinic with patients and doctors.
@@ -299,15 +300,12 @@ public class Clinic {
 	 * @return the collection of strings with information about doctors and patients count
 	 */
 	public Collection<String> doctorsByNumPatients(){
-		/*
 		List<String> res = doctors.values().stream()
-				.sorted(Comparator.comparing(doctor -> doctor.getPatients().size()).reversed())
-				.collect(Collectors.toMap(doctor -> String.format("%3d", doctor.getPatients().size()),doctor -> doctor.Desc()))
-				.entries().stream()
+				.sorted(Comparator.comparing(Doctor::getNum).reversed())
+				.collect(Collectors.toMap(doctor -> String.format("%3d", doctor.getNum()),doctor -> doctor.desc()))
+				.entrySet().stream()
 				.collect(Collectors.mapping(entry -> entry.getKey() + " : " + entry.getValue(),Collectors.toList()));
 		return res;
-		*/
-		return null;
 	}
 	
 	/**
@@ -322,8 +320,15 @@ public class Clinic {
 	 * @return the collection of strings with speciality and patient count information.
 	 */
 	public Collection<String> countPatientsPerSpecialization(){
-		// TODO Complete method
-		return null;
+		List<String> res = doctors.values().stream()
+				.collect(Collectors.groupingBy(Doctor::getSpecialization,
+						Collectors.summingInt(Doctor::getNum)))
+				.entrySet().stream()
+				.sorted(Comparator.comparing((Map.Entry<String,Integer> entry) -> entry.getValue()).reversed()
+						.thenComparing((Map.Entry<String,Integer> entry) -> entry.getKey()))
+				.collect(Collectors.mapping(entry -> entry.getKey() + " : " + String.format("%3d", entry.getValue()), Collectors.toList()));
+				
+		return res;
 	}
 	
 }

@@ -72,4 +72,8 @@ public class Doctor {
 	public String desc() {
 		return getId() + " " + getLast() + " " + getFirst();
 	}
+	
+	public int getNum(){
+		return patients.size();
+	}
 }
