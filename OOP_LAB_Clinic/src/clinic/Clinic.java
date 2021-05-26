@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.Map.Entry;
 
 /**
@@ -65,6 +66,7 @@ public class Clinic {
 	 */
 	public void addDoctor(String first, String last, String ssn, int docID, String specialization) {
 		doctors.put(docID, new Doctor(first,last,ssn,docID,specialization));
+		patients.put(ssn,new Patient(first,last,ssn));
 	}
 
 	/**
@@ -176,18 +178,22 @@ public class Clinic {
 	public int loadData(Reader reader) throws IOException {
 		List<String> line = new ArrayList<>();
 		String[] data;
+		int c = 0;
 		try {
 			BufferedReader buffReader= new BufferedReader(reader);
-			while (line.add(buffReader.readLine()) && line.get(line.size()-1)!=null) {
+			//checking if the line is not empty
+			while (line.add(buffReader.readLine()) && line.get(line.size()-1)!=null && !line.get(line.size()-1).equals("")) {
 				//System.out.println(line.get(line.size()-1));
 				try {
 					data = line.get(line.size()-1).split(";");
 					//System.out.println(data);
 					if (data[0].trim().equals("P")) {
 						addPatient(data[1].trim(),data[2].trim(),data[3].trim());
+						c++;
 						//System.out.println("added patient");
 					}else if (data[0].trim().equals("M")) {
 						addDoctor(data[2].trim(),data[3].trim(),data[4].trim(),Integer.parseInt(data[1].trim()),data[5].trim());
+						c++;
 						//System.out.println("added doctor");
 					}
 				}catch (Exception e) {
@@ -199,7 +205,7 @@ public class Clinic {
 		}finally {
 			reader.close();
 		}
-		return line.size()-1;
+		return c;
 	}
 
 
@@ -228,23 +234,31 @@ public class Clinic {
 	public int loadData(Reader reader, ErrorListener listener) throws IOException {
 		List<String> line = new ArrayList<>();
 		String[] data;
+		int c = 0;
 		try {
 			BufferedReader buffReader= new BufferedReader(reader);
-			while (line.add(buffReader.readLine()) && line.get(line.size()-1)!=null) {
+			//checking if the line is not empty
+			while (line.add(buffReader.readLine()) && line.get(line.size()-1)!=null ) {
 				//System.out.println(line.get(line.size()-1));
-				try {
-					data = line.get(line.size()-1).split(";");
-					//System.out.println(data);
-					if (data[0].trim().equals("P")) {
-						addPatient(data[1].trim(),data[2].trim(),data[3].trim());
-						//System.out.println("added patient");
-					}else if (data[0].trim().equals("M")) {
-						addDoctor(data[2].trim(),data[3].trim(),data[4].trim(),Integer.parseInt(data[1].trim()),data[5].trim());
-						//System.out.println("added doctor");
+				if (line.get(line.size()-1).equals("")) {
+					listener.offending(line.get(line.size()-1));
+				}else {
+					try {
+						data = line.get(line.size()-1).split(";");
+						//System.out.println(data);
+						if (data[0].trim().equals("P")) {
+							addPatient(data[1].trim(),data[2].trim(),data[3].trim());
+							c++;
+							//System.out.println("added patient");
+						}else if (data[0].trim().equals("M")) {
+							addDoctor(data[2].trim(),data[3].trim(),data[4].trim(),Integer.parseInt(data[1].trim()),data[5].trim());
+							c++;
+							//System.out.println("added doctor");
+						}
+					}catch (Exception e) {
+						listener.offending(line.get(line.size()- 1));
+						System.out.println("Error on line: " + line.get(line.size()-1));
 					}
-				}catch (Exception e) {
-					listener.offending(line.get(line.size()- 1));
-					System.out.println("Error on line: " + line.get(line.size()-1));
 				}
 			}
 		}catch (IOException e) {
@@ -252,7 +266,7 @@ public class Clinic {
 		}finally {
 			reader.close();
 		}
-		return line.size()-1;
+		return c;
 	}
 
 		
@@ -263,7 +277,7 @@ public class Clinic {
 	 * @return the collection of doctors' ids
 	 */
 	public Collection<Integer> idleDoctors(){
-		List<Integer> res = doctors.values().stream().filter(doctor -> doctor.getPatients() == null)
+		List<Integer> res = doctors.values().stream().filter(doctor -> doctor.getPatients().size() == 0)
 				.sorted(Comparator.comparing(Doctor::getLast).thenComparing(Doctor::getFirst))
 				.collect(Collectors.mapping(doctor -> doctor.getId(),Collectors.toList()));
 		return res;
@@ -300,11 +314,13 @@ public class Clinic {
 	 * @return the collection of strings with information about doctors and patients count
 	 */
 	public Collection<String> doctorsByNumPatients(){
+		
 		List<String> res = doctors.values().stream()
-				.sorted(Comparator.comparing(Doctor::getNum).reversed())
 				.collect(Collectors.toMap(doctor -> String.format("%3d", doctor.getNum()),doctor -> doctor.desc()))
 				.entrySet().stream()
+				.sorted(Entry.comparingByKey(Comparator.reverseOrder()))
 				.collect(Collectors.mapping(entry -> entry.getKey() + " : " + entry.getValue(),Collectors.toList()));
+		
 		return res;
 	}
 	
@@ -326,8 +342,8 @@ public class Clinic {
 				.entrySet().stream()
 				.sorted(Comparator.comparing((Map.Entry<String,Integer> entry) -> entry.getValue()).reversed()
 						.thenComparing((Map.Entry<String,Integer> entry) -> entry.getKey()))
-				.collect(Collectors.mapping(entry -> entry.getKey() + " : " + String.format("%3d", entry.getValue()), Collectors.toList()));
-				
+				.collect(Collectors.mapping(entry ->  String.format("%03d", entry.getValue()) + " - "+  entry.getKey(), Collectors.toList()));
+		
 		return res;
 	}
 	
