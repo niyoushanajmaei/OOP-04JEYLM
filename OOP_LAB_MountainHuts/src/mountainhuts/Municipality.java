@@ -42,7 +42,7 @@ public class Municipality {
 	 * 
 	 * @return altitude
 	 */
-	public int getAltitude() {
+	public Integer getAltitude() {
 		return altitude;
 	}
 

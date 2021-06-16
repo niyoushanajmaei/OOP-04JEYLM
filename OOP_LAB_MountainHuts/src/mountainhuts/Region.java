@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.Map.Entry;
 
 /**
  * Class {@code Region} represents the main facade
@@ -261,6 +263,7 @@ public class Region {
 	 *         value
 	 */
 	public Map<String, Long> countMunicipalitiesPerProvince() {
+		/*
 		Map<String,Long> res = new LinkedHashMap<String,Long>();
 		for(Municipality m:municipalities) {
 			if (res.containsKey(m.getProvince())) {
@@ -270,6 +273,11 @@ public class Region {
 				res.put(m.getProvince(),(long) 1);
 			}
 		}
+		return res;
+		*/
+		Map<String,Long> res = municipalities.stream()
+				.collect(Collectors.groupingBy(Municipality::getProvince,Collectors.counting()));
+		
 		return res;
 	}
 
@@ -281,6 +289,7 @@ public class Region {
 	 */
 
 	public Map<String, Map<String, Long>> countMountainHutsPerMunicipalityPerProvince() {
+		/*
 		Map<String,Map<String,Long>> res = new LinkedHashMap<String,Map<String,Long>>();
 		for(MountainHut mh:mountainHuts) {
 			String mun = mh.getMunicipality().getName();
@@ -299,6 +308,12 @@ public class Region {
 			}
 		}
 		return res;
+		*/
+		Map<String,Map<String,Long>> res = mountainHuts.stream()
+				.collect(Collectors.groupingBy(mountainHut -> mountainHut.getMunicipality().getProvince(),
+						Collectors.groupingBy(mountainHut -> mountainHut.getMunicipality().getName(),Collectors.counting())));
+		
+		return res;
 	}
 
 	/**
@@ -309,6 +324,7 @@ public class Region {
 	 *         as value
 	 */
 	public Map<String, Long> countMountainHutsPerAltitudeRange() {
+		/*
 		String t;
 		Integer alt;
 		Map<String,Long> res = new TreeMap<String,Long>();
@@ -325,20 +341,23 @@ public class Region {
 			}else {
 				res.put(t, (long) 1);
 			}
-			
-			/*
-			if (t.equals("0-1000")) {
-				if (mh.getAltitude().isPresent()){
-					System.out.println("present altitude");
-				}
-				System.out.println("altitude is: "+alt);
-				System.out.println("Altitude Range: " + t);
-				System.out.println(res.get(t)+"\n");
-			}
-			*/
-			
 		}
 		return res;
+		*/
+		Map<String,Long> res = mountainHuts.stream()
+				.collect(Collectors.groupingBy(mountainHut -> getAltitudeRangeOfMountainHut(mountainHut),Collectors.counting()));
+		
+		return res;
+	}
+
+	private String getAltitudeRangeOfMountainHut(MountainHut mh) {
+		Integer alt;
+		if (mh.getAltitude().isPresent()){
+			alt = mh.getAltitude().get();
+		}else {
+			alt = mh.getMunicipality().getAltitude();
+		}
+		return getAltitudeRange(alt);
 	}
 
 	/**
@@ -348,6 +367,7 @@ public class Region {
 	 * @return a map with the province as key and the total number of beds as value
 	 */
 	public Map<String, Integer> totalBedsNumberPerProvince() {
+		/*
 		Map<String, Integer> res = new LinkedHashMap<>();
 		for (MountainHut mh: mountainHuts) {
 			String prov = mh.getMunicipality().getProvince();
@@ -358,6 +378,12 @@ public class Region {
 				res.put(prov, mh.getBedsNumber());
 			}
 		}
+		return res;
+		*/
+		Map<String,Integer> res = mountainHuts.stream()
+				.collect(Collectors.groupingBy(mountainHut -> mountainHut.getMunicipality().getProvince(),
+						Collectors.summingInt(MountainHut::getBedsNumber)));
+				
 		return res;
 	}
 
@@ -370,6 +396,7 @@ public class Region {
 	 *         as value
 	 */
 	public Map<String, Optional<Integer>> maximumBedsNumberPerAltitudeRange() {
+		/*
 		Map<String,Optional<Integer>> res = new TreeMap<String,Optional<Integer>>();
 		for(MountainHut mh: mountainHuts) {
 			int alt;
@@ -393,16 +420,25 @@ public class Region {
 			}
 		}
 		return res;
+		*/
+		Map<String, Optional<Integer>> res = mountainHuts.stream()
+				.collect(Collectors.groupingBy(mountainHut -> this.getAltitudeRangeOfMountainHut(mountainHut)
+					,Collectors.mapping(MountainHut::getBedsNumber
+					,Collectors.maxBy(Comparator.naturalOrder()))));
+		
+		return res;
 	}
 
 	/**
 	 * Compute the municipality names per number of mountain huts in a municipality.
 	 * The lists of municipality names must be in alphabetical order.
 	 * 
+	 * 
 	 * @return a map with the number of mountain huts in a municipality as key and a
 	 *         list of municipality names as value
 	 */
 	public Map<Long, List<String>> municipalityNamesPerCountOfMountainHuts() {
+		/*
 		Map<Long,List<String>> res = new LinkedHashMap<Long,List<String>>();
 		
 		Map<String,Long> numberOfMountainHutsPerMunicipality = new LinkedHashMap<String,Long>();
@@ -439,6 +475,26 @@ public class Region {
 		}
 		
 		return res;
+		*/
+		
+		Map<String,Long> mountainHutPerMunicipality = mountainHuts.stream().
+											sorted(Comparator.comparing(m -> m.getMunicipality().getName()))
+											.collect(Collectors.groupingBy(m->m.getMunicipality().getName(),Collectors.counting()));
+									
+		Map<Long,List<String>> res = new TreeMap<>();
+		for (Entry<String,Long> e:mountainHutPerMunicipality.entrySet()) {
+			if(res.containsKey(e.getValue())) {
+				res.get(e.getValue()).add(e.getKey());
+				res.get(e.getValue()).sort(Comparator.naturalOrder());
+			}else {
+				List<String> newList = new LinkedList<>();
+				newList.add(e.getKey());
+				res.put(e.getValue(),newList);
+			}
+		}
+		
+		return res;
 	}
-
+		
+	
 }
