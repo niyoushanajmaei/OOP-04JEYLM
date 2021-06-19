@@ -3,8 +3,12 @@ package it.polito.oop.vaccination;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.time.temporal.TemporalAccessor;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import it.polito.oop.vaccination.Person.STATUS;
+
 import java.util.*;
 public class Vaccines {
 
@@ -365,21 +369,51 @@ public class Vaccines {
      * @return the list of daily allocations
      */
     public List<String> allocate(String hubName, int d) {
+    	List<String> res = new LinkedList<>();
     	Hub h = hubs.get(hubName);
     	int cap = getDailyAvailable(hubName,d);
 		List<String> slots = getHours().get(d);
 		
 		int trun = truncate(cap *0.4);
+		int totAllocated = 0;
     	
 		for (String slot:slots) {
-			for (String interval: getAgeIntervals()) {
-				
+			List<String> intervals = (List<String>) getAgeIntervals();
+			for (int i=intervals.size()-1;i>=0;i--) {
+				int c =0;
+				String interval =  intervals.get(i);
+				for(Person p:people.values()) {
+					if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.NOT_ALLOCATED) &&c<=trun) {
+						p.setSt(STATUS.ALLOCATED);
+						p.setHub(h);
+						p.setSlot(slot);
+						c++;
+						totAllocated++;
+						res.add(p.getSsn());
+					}
+				}
 			}
 		}
 		
-		
-    	
-        return null;
+		if(totAllocated<cap) {
+			for (String slot:slots) {
+				List<String> intervals = (List<String>) getAgeIntervals();
+				for (int i=intervals.size()-1;i>=0;i--) {
+					String interval =  intervals.get(i);
+					for(Person p:people.values()) {
+						if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.NOT_ALLOCATED) &&totAllocated<cap) {
+							p.setSt(STATUS.ALLOCATED);
+							p.setHub(h);
+							p.setSlot(slot);
+							totAllocated++;
+							res.add(p.getSsn());
+						}
+					}
+				}
+			}
+		}
+			
+        return res;
     }
     
     
@@ -397,6 +431,9 @@ public class Vaccines {
      * clears their allocation status
      */
     public void clearAllocation() {
+    	for (Person p:people.values()) {
+    		p.setSt(STATUS.NOT_ALLOCATED);
+    	}
     }
 
     /**
@@ -418,7 +455,15 @@ public class Vaccines {
      * @return the list of daily allocations
      */
     public List<Map<String, List<String>>> weekAllocate() {
-        return null;
+    	List<Map<String,List<String>>> res = new LinkedList<>();
+    	for (int i =0;i<7;i++) {
+    		Map<String,List<String>> m = new LinkedHashMap<>();
+    		for (String name:hubs.keySet()) {
+    			m.put(name,allocate(name,i));
+    		}
+    		res.add(m);
+    	}
+        return res;
     }
 
     // R5
