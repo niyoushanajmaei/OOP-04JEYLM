@@ -390,18 +390,19 @@ public class Vaccines {
 						c++;
 						totAllocated++;
 						res.add(p.getSsn());
+						
 					}
 				}
 			}
 		}
 		
-		if(totAllocated<cap) {
+		while(totAllocated<cap) {
 			for (String slot:slots) {
 				List<String> intervals = (List<String>) getAgeIntervals();
 				for (int i=intervals.size()-1;i>=0;i--) {
 					String interval =  intervals.get(i);
 					for(Person p:people.values()) {
-						if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.NOT_ALLOCATED) &&totAllocated<cap) {
+						if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.NOT_ALLOCATED) ) {
 							p.setSt(STATUS.ALLOCATED);
 							p.setHub(h);
 							p.setSlot(slot);
@@ -475,7 +476,14 @@ public class Vaccines {
      * @return proportion of allocated people
      */
     public double propAllocated() {
-        return -1.0;
+    	int c  = 0;
+    	List<Map<String, List<String>>> tmp = weekAllocate();
+    	for (int i=0;i<7;i++) {
+    		for (List<String> list : tmp.get(i).values()) {
+    			c+=list.size();
+    		}
+    	}
+        return 1.0*c/people.size();
     }
 
     /**

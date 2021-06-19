@@ -60,6 +60,7 @@ public final class TestApp {
     	assertEquals("Missing people in interval", 3033, people.size());
     	assertEquals("Missing people in interval", 996, vs.getInInterval("[60,70)").size());
 
+    
     	
     	// R2
     	
@@ -122,7 +123,6 @@ public final class TestApp {
     	assertEquals("wrong number of allocated people", 70*8, alloc.size() );
     	long count_60_70 = alloc.stream().map(vs::getAge).filter(a -> a>=60 && a<70).count();
     	assertEquals("Wrong number of people in [60,70)",70*8*24/100, count_60_70);
-
     	long count_over_70 = alloc.stream().map(vs::getAge).filter(a -> a>=70).count();
     	assertEquals("Wrong number of people over 70, should be 40% + 4.8%",Math.round(70*8*0.448), count_over_70);
 
@@ -172,7 +172,7 @@ public final class TestApp {
     			   errors.keySet().containsAll(Arrays.asList(3,4)));
     }
     
-    
+   
     
     ///------------------------------------------------------------------------------------------------------------
     //
