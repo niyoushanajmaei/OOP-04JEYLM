@@ -5,6 +5,12 @@ public class Person {
 	String lastName;
 	String ssn;
 	int year;
+	STATUS st  = STATUS.NOT_ALLOCATED;
+	Hub hub;
+	String slot;
+	
+	public enum STATUS {ALLOCATED,NOT_ALLOCATED};
+	
 	public Person(String firstName, String lastName, String ssn, int year) {
 		super();
 		this.firstName = firstName;
@@ -39,6 +45,24 @@ public class Person {
 	
 	public String toString() {
 		return ssn +"," + lastName+"," +firstName;
+	}
+	public STATUS getSt() {
+		return st;
+	}
+	public void setSt(STATUS st) {
+		this.st = st;
+	}
+	public Hub getHub() {
+		return hub;
+	}
+	public void setHub(Hub hub) {
+		this.hub = hub;
+	}
+	public String getSlot() {
+		return slot;
+	}
+	public void setSlot(String slot) {
+		this.slot = slot;
 	}
 
 }

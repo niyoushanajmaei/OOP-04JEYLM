@@ -97,7 +97,7 @@ public class Vaccines {
     	intervals.sort(Comparator.naturalOrder());
     	Collection<String> res = new LinkedList<>();
     	res.add("[0," +intervals.get(0)+")");
-    	for (int i:intervals) {
+    	for (int i=0;i<intervals.size()-1;i++) {
     		res.add("["+intervals.get(i)+","+intervals.get(i+1)+")");
     	}
     	res.add("[" +intervals.get(intervals.size()-1)+",+)");
@@ -130,7 +130,12 @@ public class Vaccines {
     		}
     	}
     	start = Integer.parseInt(range.substring(c+1,k));
-    	end = Integer.parseInt(range.substring(k+1,t));
+    	if (!range.substring(k+1,t).equals("+")) {
+    		end = Integer.parseInt(range.substring(k+1,t));
+    	}else {
+    		end = Integer.MAX_VALUE;
+    	}
+    	
     	
     	for (Person p :people.values()) {
     		int age = getAge(p.getSsn());
@@ -289,17 +294,18 @@ public class Vaccines {
     	for(int i=0;i<7;i++) {
     		List<String> times = new LinkedList<>();
     		for (int j=0;j<hours.get(i);j++) {
-    			String st = String.format("%02d:%02d",9+i,00);
+    			String st = String.format("%02d:%02d",9+j,00);
     			times.add(st);
-    			st = String.format("%02d:%02d",9+i,15);
+    			st = String.format("%02d:%02d",9+j,15);
     			times.add(st);
-    			st = String.format("%02d:%02d",9+i,30);
+    			st = String.format("%02d:%02d",9+j,30);
     			times.add(st);
-    			st = String.format("%02d:%02d",9+i,45);
+    			st = String.format("%02d:%02d",9+j,45);
     			times.add(st);
     		}
     		res.add(times);
     	}
+    	
         return res;
     }
 
@@ -359,8 +365,32 @@ public class Vaccines {
      * @return the list of daily allocations
      */
     public List<String> allocate(String hubName, int d) {
+    	Hub h = hubs.get(hubName);
+    	int cap = getDailyAvailable(hubName,d);
+		List<String> slots = getHours().get(d);
+		
+		int trun = truncate(cap *0.4);
+    	
+		for (String slot:slots) {
+			for (String interval: getAgeIntervals()) {
+				
+			}
+		}
+		
+		
+    	
         return null;
     }
+    
+    
+    	private int truncate(Double d) {
+    		int intValue = d.intValue();
+    		Double floating = d-intValue;
+    		int perc = ((Double)(floating*10)).intValue();
+    		return  (intValue + perc/10);
+    	}
+   
+
 
     /**
      * Removes all people from allocation lists and

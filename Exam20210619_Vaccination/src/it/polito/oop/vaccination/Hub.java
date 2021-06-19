@@ -43,7 +43,7 @@ public class Hub {
 	}
 
 	public int getCapacity() {
-		int res = 10 *doc + 12 *nurse + 20*other; 
+		int res = Math.min(10 *doc ,Math.min( 12 *nurse , 20*other)); 
 		return res;
 	}
 	
