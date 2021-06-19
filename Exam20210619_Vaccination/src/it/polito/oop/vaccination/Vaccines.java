@@ -3,14 +3,14 @@ package it.polito.oop.vaccination;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
-
+import java.util.*;
 public class Vaccines {
 
     public final static int CURRENT_YEAR = java.time.LocalDate.now().getYear();
+    
+    SortedMap<String,Person> people = new TreeMap<>();
+    List<Integer> intervals = new LinkedList<>();
 
     // R1
     /**
@@ -25,7 +25,11 @@ public class Vaccines {
      * @return {@code false} if ssn is duplicate,
      */
     public boolean addPerson(String firstName, String lastName, String ssn, int year) {
-        return false;
+    	if(people.containsKey(ssn)) {
+    		return false;
+    	}
+    	people.put(ssn,new Person(firstName,lastName,ssn,year));
+        return true;
     }
 
     /**
@@ -34,7 +38,7 @@ public class Vaccines {
      * @return person count
      */
     public int countPeople() {
-        return -1;
+        return people.size();
     }
 
     /**
@@ -46,7 +50,7 @@ public class Vaccines {
      * @return info about the person
      */
     public String getPerson(String ssn) {
-        return null;
+        return people.get(ssn).toString();
     }
 
     /**
@@ -56,7 +60,8 @@ public class Vaccines {
      * @return age of person (in years)
      */
     public int getAge(String ssn) {
-        return -1;
+    	Person p = people.get(ssn);
+        return CURRENT_YEAR - p.getYear();
     }
 
     /**
@@ -71,6 +76,9 @@ public class Vaccines {
      * @param breaks the array of breaks
      */
     public void setAgeIntervals(int... breaks) {
+    	for (int i:breaks) {
+    		intervals.add(i);
+    	}
     }
 
     /**
@@ -83,7 +91,14 @@ public class Vaccines {
      * @return labels of the age intervals
      */
     public Collection<String> getAgeIntervals() {
-        return null;
+    	intervals.sort(Comparator.naturalOrder());
+    	Collection<String> res = new LinkedList<>();
+    	res.add("[0," +intervals.get(0)+")");
+    	for (int i:intervals) {
+    		res.add("["+intervals.get(i)+","+intervals.get(i+1)+")");
+    	}
+    	res.add("[" +intervals.get(intervals.size()-1)+",+)");
+        return res;
     }
 
     /**
@@ -160,10 +175,38 @@ public class Vaccines {
      * @throws VaccineException in case of error in the header
      */
     public long loadPeople(Reader people) throws IOException, VaccineException {
-        // Hint:
-        BufferedReader br = new BufferedReader(people);
-        br.close();
-        return -1;
+        List<String> line = new ArrayList<>();
+        BufferedReader buffReader = null;
+        long c =0;
+		try {
+			buffReader= new BufferedReader(people);
+			//checking if the line is not empty
+			while (line.add(buffReader.readLine()) && line.get(line.size()-1)!=null && !line.get(line.size()-1).equals("")) {
+				//System.out.println(line.get(line.size()-1));
+	
+				String[] data = line.get(line.size()-1).split(",");
+				if (line.size()==1) {
+					if (!data[0].equals("SSN") || !data[1].equals("LAST") || !data[2].equals("FIRST") || !data[3].equals("YEAR")) {
+						throw new VaccineException();
+					}
+				}
+				else {
+					if (data[0].equals("") || data[1].equals("") || data[2].equals("") || data[3].equals("")  ) {
+						
+					}else {
+						addPerson(data[2],data[1],data[0],Integer.parseInt(data[3]));
+						c++;
+					}
+				}
+				
+			}
+		}catch (IOException e) {
+			throw new IOException();
+		}finally {
+			people.close();
+			buffReader.close();
+		}
+        return c;
     }
 
     // R4
