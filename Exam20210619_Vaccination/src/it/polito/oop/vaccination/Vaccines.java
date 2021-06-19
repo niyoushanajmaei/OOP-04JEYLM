@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.*;
 public class Vaccines {
 
@@ -12,6 +13,7 @@ public class Vaccines {
     SortedMap<String,Person> people = new TreeMap<>();
     List<Integer> intervals = new LinkedList<>();
     Map<String,Hub> hubs = new LinkedHashMap<>();
+	List<Integer> hours = new LinkedList<>();
 
     // R1
     /**
@@ -258,6 +260,15 @@ public class Vaccines {
      * @throws VaccineException if there are not exactly 7 elements or if the sum of all hours is less than 0 ore greater than 24*7.
      */
     public void setHours(int... hours) throws VaccineException {
+    	if(hours.length!=7) {
+    		throw new VaccineException();
+    	}
+    	for (int i:hours) {
+    		if(i>12) {
+    			throw new VaccineException();
+    		}
+    		this.hours.add(i);
+    	}
     }
 
     /**
@@ -274,7 +285,22 @@ public class Vaccines {
      * @return the list hours for each day of the week
      */
     public List<List<String>> getHours() {
-        return null;
+    	List<List<String>> res = new LinkedList<>();
+    	for(int i=0;i<7;i++) {
+    		List<String> times = new LinkedList<>();
+    		for (int j=0;j<hours.get(i);j++) {
+    			String st = String.format("%02d:%02d",9+i,00);
+    			times.add(st);
+    			st = String.format("%02d:%02d",9+i,15);
+    			times.add(st);
+    			st = String.format("%02d:%02d",9+i,30);
+    			times.add(st);
+    			st = String.format("%02d:%02d",9+i,45);
+    			times.add(st);
+    		}
+    		res.add(times);
+    	}
+        return res;
     }
 
     /**
@@ -286,7 +312,8 @@ public class Vaccines {
      * @return
      */
     public int getDailyAvailable(String hubName, int d) {
-        return -1;
+    	Hub h = hubs.get(hubName);
+        return h.getCapacity()*hours.get(d);
     }
 
     /**
@@ -301,9 +328,20 @@ public class Vaccines {
      * @return
      */
     public Map<String, List<Integer>> getAvailable() {
-        return null;
+    	Map<String,List<Integer>> res = hubs.values().stream()
+    									.collect(Collectors.toMap(Hub::getName,h -> getWeeklyCap(h)));
+        return res;
     }
 
+    
+    public List<Integer> getWeeklyCap(Hub h){
+    	List<Integer> res = new LinkedList<>();
+    	for (int i=0;i<7;i++) {
+    		res.add(getDailyAvailable(h.getName(),i));
+    	}
+    	return res;
+    }
+    
     /**
      * Computes the general allocation plan a hub on a given day.
      * Starting with the oldest age intervals 40%
