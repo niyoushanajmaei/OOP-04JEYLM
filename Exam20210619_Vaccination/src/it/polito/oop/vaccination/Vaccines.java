@@ -534,10 +534,13 @@ public class Vaccines {
 		for (int i=intervals.size()-1;i>=0;i--) {
 			String interval =  intervals.get(i);
 			for(Person p:people.values()) {
-				if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.ALLOCATED) ) {
+				if (getInInterval(interval).contains(p.getSsn()) && p.getSt().equals(STATUS.ALLOCATED) ) {
 					c++;
 				}
-				t++;
+				if ( p.getSt().equals(STATUS.ALLOCATED) ) {
+					t++;
+				}
+				
 			}
 			res.put(interval,1.0*c/t);
 		}
