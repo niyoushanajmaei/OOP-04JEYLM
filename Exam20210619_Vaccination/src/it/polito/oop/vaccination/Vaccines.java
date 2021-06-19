@@ -11,6 +11,7 @@ public class Vaccines {
     
     SortedMap<String,Person> people = new TreeMap<>();
     List<Integer> intervals = new LinkedList<>();
+    Map<String,Hub> hubs = new LinkedHashMap<>();
 
     // R1
     /**
@@ -146,6 +147,10 @@ public class Vaccines {
      * @throws VaccineException in case of duplicate name
      */
     public void defineHub(String name) throws VaccineException {
+    	if (hubs.containsKey(name)) {
+    		throw new VaccineException();
+    	}
+    	hubs.put(name,new Hub(name));
     }
 
     /**
@@ -154,7 +159,7 @@ public class Vaccines {
      * @return hub names
      */
     public Collection<String> getHubs() {
-        return null;
+        return hubs.keySet();
     }
 
     /**
@@ -168,6 +173,13 @@ public class Vaccines {
      * @throws VaccineException in case of undefined hub, or any number of personnel not greater than 0.
      */
     public void setStaff(String name, int countDoctors, int countNurse, int o) throws VaccineException {
+    	if (countDoctors<=0 ||   countNurse <= 0 ||  o <=0 || !hubs.containsKey(name)) {
+    		throw new VaccineException();
+    	}
+    	Hub h = hubs.get(name);
+    	h.setDoc(countDoctors);
+    	h.setNurse(countNurse);
+    	h.setOther(o);
     }
 
     /**
@@ -181,7 +193,10 @@ public class Vaccines {
      * @throws VaccineException in case of undefined or hub without staff
      */
     public int estimateHourlyCapacity(String hubName) throws VaccineException {
-        return -1;
+    	if(!hubs.containsKey(hubName)) {
+    		throw new VaccineException();
+    	}
+        return hubs.get(hubName).getCapacity();
     }
 
     // R3
