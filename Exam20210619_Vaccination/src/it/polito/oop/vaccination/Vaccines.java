@@ -111,7 +111,31 @@ public class Vaccines {
      * @return collection of SSN of person in the age interval
      */
     public Collection<String> getInInterval(String range) {
-        return null;
+    	Collection<String> res = new LinkedList<>();
+    	int start =0;
+    	int end = 0;
+    	int c = 0;
+    	int k = 0;
+    	int t = 0;
+    	for (int i=0;i<range.length();i++) {
+    		if(range.substring(i,i+1).equals("[")) {
+    			c = i;
+    		}else if(range.substring(i,i+1).equals(",")) {
+    			k = i;
+    		}else if(range.substring(i,i+1).equals(")")) {
+    			t = i;
+    		}
+    	}
+    	start = Integer.parseInt(range.substring(c+1,k));
+    	end = Integer.parseInt(range.substring(k+1,t));
+    	
+    	for (Person p :people.values()) {
+    		int age = getAge(p.getSsn());
+    		if(age >=start && age <end) {
+    			res.add(p.getSsn());
+    		}
+    	}
+        return res;
     }
 
     // R2
