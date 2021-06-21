@@ -18,6 +18,7 @@ public class Vaccines {
     List<Integer> intervals = new LinkedList<>();
     Map<String,Hub> hubs = new LinkedHashMap<>();
 	List<Integer> hours = new LinkedList<>();
+	BiConsumer<Integer, String> lst;
 
     // R1
     /**
@@ -204,7 +205,7 @@ public class Vaccines {
      * @throws VaccineException in case of undefined or hub without staff
      */
     public int estimateHourlyCapacity(String hubName) throws VaccineException {
-    	if(!hubs.containsKey(hubName)) {
+    	if(!hubs.containsKey(hubName)|| hubs.get(hubName).getDoc()==0) {
     		throw new VaccineException();
     	}
         return hubs.get(hubName).getCapacity();
@@ -236,13 +237,14 @@ public class Vaccines {
 	
 				String[] data = line.get(line.size()-1).split(",");
 				if (line.size()==1) {
-					if (!data[0].equals("SSN") || !data[1].equals("LAST") || !data[2].equals("FIRST") || !data[3].equals("YEAR")) {
+					if (data.length!=4 ||!data[0].equals("SSN") || !data[1].equals("LAST") || !data[2].equals("FIRST") || !data[3].equals("YEAR")) {
+						if(lst!=null) lst.accept(line.size(),line.get(line.size()-1));
 						throw new VaccineException();
 					}
 				}
 				else {
-					if (data[0].equals("") || data[1].equals("") || data[2].equals("") || data[3].equals("")  ) {
-						
+					if (data.length!=4 ||data[0].equals("") || data[1].equals("") || data[2].equals("") || data[3].equals("") || this.people.containsKey(data[0]) ) {
+						if(lst!=null) lst.accept(line.size(),line.get(line.size()-1));
 					}else {
 						addPerson(data[2],data[1],data[0],Integer.parseInt(data[3]));
 						c++;
@@ -373,48 +375,39 @@ public class Vaccines {
     	Hub h = hubs.get(hubName);
     	int cap = getDailyAvailable(hubName,d);
 		List<String> slots = getHours().get(d);
-		
-		int trun = truncate(cap *0.4);
 		int totAllocated = 0;
-    	
-		for (String slot:slots) {
-			List<String> intervals = (List<String>) getAgeIntervals();
+		List<String> intervals = (List<String>) getAgeIntervals();
+		for (int i=intervals.size()-1;i>=0;i--) {
+			int c =0, trun = truncate((cap - totAllocated) *0.4);
+			String interval =  intervals.get(i);
+			for(String ssn:getInInterval(interval)) {
+				Person p = people.get(ssn);
+				if ( p.getSt().equals(STATUS.NOT_ALLOCATED) &&c<trun) {
+					p.setSt(STATUS.ALLOCATED);
+					p.setHub(h);
+					c++;
+					totAllocated++;
+					res.add(p.getSsn());
+				}
+			}
+		}
+	
+		if(totAllocated<cap) {
 			for (int i=intervals.size()-1;i>=0;i--) {
-				int c =0;
 				String interval =  intervals.get(i);
-				for(Person p:people.values()) {
-					if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.NOT_ALLOCATED) &&c<=trun) {
+				for(String ssn:getInInterval(interval)) {
+					Person p = people.get(ssn);
+					if (p.getSt().equals(STATUS.NOT_ALLOCATED) && totAllocated<cap) {
 						p.setSt(STATUS.ALLOCATED);
 						p.setHub(h);
-						p.setSlot(slot);
-						c++;
 						totAllocated++;
 						res.add(p.getSsn());
-						
 					}
 				}
 			}
 		}
 		
-		while(totAllocated<cap) {
-			for (String slot:slots) {
-				List<String> intervals = (List<String>) getAgeIntervals();
-				for (int i=intervals.size()-1;i>=0;i--) {
-					String interval =  intervals.get(i);
-					for(Person p:people.values()) {
-						if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.NOT_ALLOCATED) ) {
-							p.setSt(STATUS.ALLOCATED);
-							p.setHub(h);
-							p.setSlot(slot);
-							totAllocated++;
-							res.add(p.getSsn());
-						}
-					}
-				}
-			}
-		}
-			
-        return res;
+		return res;
     }
     
     
@@ -500,15 +493,14 @@ public class Vaccines {
     	Map<String,Double> res = new LinkedHashMap<>();
     	List<String> intervals = (List<String>) getAgeIntervals();
     	int c=0;
-    	int t=0;
+    	int t=people.size();
 		for (int i=intervals.size()-1;i>=0;i--) {
+			c=0;
 			String interval =  intervals.get(i);
-			for(Person p:people.values()) {
-				if (getInInterval(interval).contains(p.getSsn()) &&p.getSt().equals(STATUS.ALLOCATED) ) {
+			for(String st:getInInterval(interval)) {
+				Person p = people.get(st);
+				if (p.getSt().equals(STATUS.ALLOCATED) ) {
 					c++;
-				}
-				if(getInInterval(interval).contains(p.getSsn())) {
-					t++;
 				}
 			}
 			res.put(interval,1.0*c/t);
@@ -531,16 +523,15 @@ public class Vaccines {
     	List<String> intervals = (List<String>) getAgeIntervals();
     	int c=0;
     	int t=0;
+    	for(Person p:people.values()) if(p.getSt().equals(STATUS.ALLOCATED)) t++;
 		for (int i=intervals.size()-1;i>=0;i--) {
 			String interval =  intervals.get(i);
-			for(Person p:people.values()) {
-				if (getInInterval(interval).contains(p.getSsn()) && p.getSt().equals(STATUS.ALLOCATED) ) {
+			c=0;
+			for(String st:getInInterval(interval)) {
+				Person p = people.get(st);
+				if (p.getSt().equals(STATUS.ALLOCATED) ) {
 					c++;
-				}
-				if ( p.getSt().equals(STATUS.ALLOCATED) ) {
-					t++;
-				}
-				
+				}	
 			}
 			res.put(interval,1.0*c/t);
 		}
@@ -558,5 +549,6 @@ public class Vaccines {
      * @param lst the listener for load errors
      */
     public void setLoadListener(BiConsumer<Integer, String> lst) {
+    	this.lst = lst;
     }
 }
