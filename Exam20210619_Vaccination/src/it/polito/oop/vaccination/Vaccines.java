@@ -226,7 +226,7 @@ public class Vaccines {
      * @throws VaccineException in case of error in the header
      */
     public long loadPeople(Reader people) throws IOException, VaccineException {
-        List<String> line = new ArrayList<>();
+    	List<String> line = new ArrayList<>();
         BufferedReader buffReader = null;
         long c =0;
 		try {
